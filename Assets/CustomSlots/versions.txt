@@ -1,0 +1,18 @@
+
+CS 1.4
+
+There were somne structual changes in configuration class. 
+Please make sure to check reel length and symbols per reel setting on the inspector before saving or hitting "Refresh Layout" button.
+Otherwise your reel settings will be rest to default.
+
+* Added a reel option to invert symbol direction when spinning.
+
+* Added a reel option to randomize symbol index when spinning.
+
+* Added a new feature called MRS(Multi-Row-Symbol) which takes up multiple rows for a single symbol.
+
+* Added a new Demo scene for introducing MRS.
+
+* Fixed a bug where the reels were not stopping at desired index when manipulating reels.
+
+* Fixed a few bugs when displayAsPlayback option is enabled. 
