@@ -35,6 +35,8 @@ public class GameManager : MonoBehaviour {
     }
 
     void Start() {
+        PlayerPrefs.DeleteKey("QuartersRefreshToken");
+
         LoadSceneAsync();
         LoginToPlayFab();
     }
@@ -64,18 +66,18 @@ public class GameManager : MonoBehaviour {
         AsyncOperation asyncOperation = SceneManager.LoadSceneAsync("Game");
         //Don't let the Scene activate until you allow it to
         asyncOperation.allowSceneActivation = false;
-       // Debug.Log("Pro :" + asyncOperation.progress);
+        // Debug.Log("Pro :" + asyncOperation.progress);
         //When the load is still in progress, output the Text and progress bar
         while (!asyncOperation.isDone)
         {
             //Output the current progress
-          //  Debug.Log("Loading progress: " + (asyncOperation.progress * 100) + "%");
+            // Debug.Log("Loading progress: " + (asyncOperation.progress * 100) + "%");
 
             // Check if the load has finished
             if (asyncOperation.progress >= 0.9f)
             {
                 //Change the Text to show the Scene is ready
-                //Debug.Log("Press the space bar to continue");
+                // Debug.Log("Scene is ready");
 
                 //Wait to you press the space key to activate the Scene
                 if (QuartersSetupCompleted)
@@ -92,30 +94,34 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    public void Play()
-    {
-
-    }
-
-    public void Credits()
-    {
+    public void Credits() {
         Debug.Log("loading credits..");
         SceneManager.LoadScene("Credits");
-    }
-
-    public void Authorize() {
-        Quarters.Instance.Authorize(OnAuthorizationSuccess, OnAuthorizationFailed);
     }
 
     public void GetAccountBalance() {
         Quarters.Instance.GetAccountBalance(delegate (User.Account.Balance balance) {
             quartersBalance = (int)balance.quarters;
-            Debug.Log((int)balance.quarters);
+            Debug.Log("Quarters balance: " + (int)balance.quarters);
             PlayerPrefs.SetInt("quartersBalance", quartersBalance);
+            Debug.Log("loading game..");
             QuartersSetupCompleted = true;
         }, delegate (string error) {
 
         });
+    }
+
+    public void Deauthorize () {
+        Quarters.Instance.Deauthorize();
+    }
+
+    public void Play () {
+        //if (Quarters.Instance.IsAuthorized) {
+            //GetAccountBalance();
+        //} else {
+            Debug.Log("authorizing quarters..");
+            Quarters.Instance.Authorize(OnAuthorizationSuccess, OnAuthorizationFailed);
+        //}
     }
 
     private void OnAuthorizationSuccess()

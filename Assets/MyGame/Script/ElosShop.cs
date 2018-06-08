@@ -11,21 +11,17 @@ namespace Elona.Slot {
 		[Serializable]
 		public class ShopItemData {
 			public string id;
-			public string name_EN;
-			public string name_JP;
-			public string hint_EN;
-			public string hint_JP;
-			public int cost;
+            public string name;
+            public string hint;
+            public int cost;
 			public Sprite sprite;
 			internal ElosShopItem actor;
 		}
 
 		[Serializable]
 		public class JureTalk {
-			public string welcome_EN;
-			public string welcome_JP;
-			public string bought_EN;
-			public string bought_JP;
+			public string welcome;
+			public string bought;
 		}
 
 		public Elos elos;
@@ -61,10 +57,10 @@ namespace Elona.Slot {
 				Camera.main.DOShakePosition(1.2f, 6, 12);
 			});
 			mascot.DOLocalMoveY(0, 2f).SetEase(Ease.OutBounce);
-			Talk(talks.welcome_EN, talks.welcome_JP, 1f);
+			Talk(talks.welcome, 1f);
 		}
 
-		public void Talk(string en, string jp, float delay = 0.1f) { Util.Tween(delay, null, () => { Util.InstantiateAt<ElosEffectBalloon>(elos.assets.effectBalloon, mascot).SetPos(0, 100).Play(Lang.Get(en, jp), 4f); }); }
+		public void Talk(string text, float delay = 0.1f) { Util.Tween(delay, null, () => { Util.InstantiateAt<ElosEffectBalloon>(elos.assets.effectBalloon, mascot).SetPos(0, 100).Play(text, 4f); }); }
 
 		public void Deactivate() {
 			if (DOTween.IsTweening(background)) return;
@@ -77,7 +73,7 @@ namespace Elona.Slot {
 
 		public void Buy(ShopItemData item) {
 			if (balance >= item.cost) {
-				Talk(talks.bought_EN, talks.bought_JP);
+				Talk(talks.bought);
 				elos.slot.gameInfo.AddBalance(-item.cost);
 				Refresh();
 			} else {

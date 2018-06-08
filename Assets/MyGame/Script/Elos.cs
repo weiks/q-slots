@@ -85,19 +85,19 @@ namespace Elona.Slot {
 				assets.audioBeep.Play();
                 Debug.Log("You're out of Quarters. [purchase]");
                 return;
-			}
-            TransferBalance(slot.gameInfo.roundCost, "Pay " + slot.gameInfo.roundCost + " Quarters for round cost.");
+			} else {
+                if (Application.isEditor) {
+                    slot.Play();
+                    int newBalance = slot.gameInfo.balance - slot.gameInfo.roundCost;
+                    PlayerPrefs.SetInt("quartersBalance", newBalance);
+                    slot.gameInfo.balance = newBalance;
+                } else {
+                    SpendQuarters(slot.gameInfo.roundCost, "Pay " + slot.gameInfo.roundCost + " Quarters for round cost.");
+                }
+            }
         }
 
-        private void AwardQuarters(int amount) {
-            Quarters.Instance.AwardQuarters(amount, delegate (string transactionHash) {
-                Debug.Log("Quarters awarded: " + transactionHash);
-            }, delegate (string error) {
-                Debug.LogError(error);
-            });
-        }
-
-        private void TransferBalance(int amount, string description) {
+        private void SpendQuarters(int amount, string description) {
             TransferAPIRequest request = new TransferAPIRequest(amount, description, delegate (string transactionHash) {
                 Debug.Log("Quarters transferred: " + transactionHash);
                 slot.Play();
@@ -114,13 +114,25 @@ namespace Elona.Slot {
         public void OnReelStart(ReelInfo info) { if (info.isFirstReel) AddExp(slot.lineManager.activeLines); }
 
 		public void OnProcessHit(HitInfo info) {
-			AddExp(info.hitChains);
-            AwardQuarters(3);
+            AddExp(info.hitChains);
 
+            if (info.hitSymbol.payType == Symbol.PayType.Normal) {
+                int amount = info.payout * slot.gameInfo.bet;
+                Debug.Log("payout: " + amount);
+
+                if (!Application.isEditor) {
+                    Quarters.Instance.AwardQuarters(amount, delegate (string transactionHash) {
+                        Debug.Log("Quarters awarded: " + transactionHash);
+                    }, delegate (string error) {
+                        Debug.LogError(error);
+                    });
+                }
+            }
+            
             if (info.hitSymbol.payType == Symbol.PayType.Custom) slot.AddEvent(new SlotEvent(bonusGame.Activate));
 		}
 
-		public void AddExp(int amount = 0) {
+        public void AddExp(int amount = 0) {
 			data.exp += amount;
 			ui.RefreshExp();
 		}
@@ -134,7 +146,7 @@ namespace Elona.Slot {
 
 				slot.AddEvent(3, () => {
 					assets.tweens.tsWinSpecial.SetText("Level Up!").Play();
-					slot.gameInfo.AddBalance(1000);
+					//slot.gameInfo.AddBalance(1000);
 				});
 			}
 		}
@@ -142,7 +154,9 @@ namespace Elona.Slot {
 		public void Save() { Save("game1"); }
 
 		public void Save(string id) {
-			PlayerPrefs.SetInt(id + "_balance", slot.gameInfo.balance);
+            Debug.Log("Quarters balance: " + slot.gameInfo.balance);
+
+            PlayerPrefs.SetInt(id + "_balance", slot.gameInfo.balance);
 			PlayerPrefs.SetInt(id + "_lv", data.lv);
 			PlayerPrefs.SetInt(id + "_exp", data.exp);
 			PlayerPrefs.SetInt(id + "_expNext", data.expNext);
@@ -154,6 +168,7 @@ namespace Elona.Slot {
 		public void Load(string id) {
 			//slot.gameInfo.balance = PlayerPrefs.GetInt(id + "_balance", slot.gameInfo.balance);
             slot.gameInfo.balance = PlayerPrefs.GetInt("quartersBalance");
+            Debug.Log("Quarters balance: " + slot.gameInfo.balance);
 
             data.lv = PlayerPrefs.GetInt(id + "_lv", data.lv);
 			data.exp = PlayerPrefs.GetInt(id + "_exp", data.exp);

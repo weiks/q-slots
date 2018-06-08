@@ -16,13 +16,12 @@ namespace Elona.Slot {
 		public void ApplyData(ElosShop.ShopItemData data, ElosShop shop) {
 			this.data = data;
 			data.actor = this;
-			button.onClick.AddListener(() => { shop.Buy(data); });
 		}
 
 		public void Refresh(bool canAfford) {
-			textName.text = Lang.Get(data.name_EN, data.name_JP);
-			textHint.text = Lang.Get(data.hint_EN, data.hint_JP);
-			textCost.text = "" + data.cost;
+            textName.text = data.name;
+            textHint.text = data.hint;
+		    textCost.text = "" + data.cost;
 			icon.sprite = data.sprite;
 			textCost.color = canAfford ? colorValid : colorInvalid;
 		}

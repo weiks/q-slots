@@ -103,7 +103,13 @@ namespace QuartersSDK {
 
         #region high level calls
 
-		public void Authorize(OnAuthorizationSuccessDelegate OnSuccessDelegate, OnAuthorizationFailedDelegate OnFailedDelegate) {
+        public void Authorize(OnAuthorizationSuccessDelegate OnSuccessDelegate, OnAuthorizationFailedDelegate OnFailedDelegate, bool forceExternalBrowser = false) {
+
+            if (!forceExternalBrowser && Application.platform == RuntimePlatform.WindowsEditor) {
+                Debug.LogWarning("Quarters: WebView is not supported in Unity Editor on Windows. Falling back to forcing external browser. You can safely ignore this message");
+                forceExternalBrowser = true;
+            }
+
 
             session = new QuartersSession();
 
@@ -120,7 +126,7 @@ namespace QuartersSDK {
 
 			if (OnAuthorizationStart != null) OnAuthorizationStart();
 
-			if (Application.isEditor) {
+            if (Application.isEditor && forceExternalBrowser) {
 				//spawn editor UI
 				GameObject.Instantiate<GameObject>(Resources.Load<GameObject>("QuartersEditor"));
                 AuthorizeEditor();
@@ -183,11 +189,23 @@ namespace QuartersSDK {
 
 
 
-		private void AuthorizeExternal() {
+        private void AuthorizeExternal(bool forceExternalBrowser = false) {
+
+            Debug.Log("OAuth authorization");
 
 			string url = QUARTERS_URL + "/oauth/authorize?response_type=code&client_id=" + QuartersInit.Instance.APP_ID + "&redirect_uri=" + URL_SCHEME + "&inline=true";
 			Debug.Log(url);
-			Application.OpenURL(url);
+
+
+            if (!forceExternalBrowser) {
+                //web view authentication
+                QuartersWebView.OpenURL(url);
+                QuartersWebView.OnDeepLink = DeepLink;
+            }
+            else {
+                //external authentication
+			    Application.OpenURL(url);
+            }
 
 		}
 
@@ -476,7 +494,9 @@ namespace QuartersSDK {
 
 
 
-        private IEnumerator CreateTransferRequestCall(TransferAPIRequest request) {
+        private IEnumerator CreateTransferRequestCall(TransferAPIRequest request, bool forceExternalBrowser = false) {
+
+            if (Application.isEditor && forceExternalBrowser) Debug.LogWarning("Quarters: Transfers with external browser arent supported in Unity editor");
 
             Debug.Log("CreateTransferRequestCall");
             
@@ -519,10 +539,16 @@ namespace QuartersSDK {
 
                 //continue outh forward
                 string url = QUARTERS_URL + "/requests/" + transferRequest.id + "?inline=true" + "&redirect_uri=" + URL_SCHEME;
-                Application.OpenURL(url);
 
-
-                //OnSucess(transferRequest);
+                if (!forceExternalBrowser) {
+                    //web view authentication
+                    QuartersWebView.OpenURL(url);
+                    QuartersWebView.OnDeepLink = DeepLink;
+                }
+                else {
+                    //external authentication
+                    Application.OpenURL(url);
+                }
             }
         }
 
@@ -538,34 +564,32 @@ namespace QuartersSDK {
         void OnApplicationFocus( bool focusStatus ){
             if (focusStatus) {
                 #if UNITY_ANDROID
-                ProcessDeepLink();
+                ProcessDeepLink(true);
                 #endif
             }
         }
 
 
 
+		public void DeepLink (string url, bool isExternalBrowser) {
 
-		#if UNITY_IOS
-
-		public void DeepLink (string url) {
-
-			Debug.Log("iOS deep link url: " + url);
-            ProcessDeepLink(url);
+			Debug.Log("Deep link url: " + url);
+            ProcessDeepLink(isExternalBrowser, url);
 		}
 
 
 
-		#endif
-
-        private void ProcessDeepLink(string url = "") {
+        private void ProcessDeepLink(bool isExternalBrowser, string url = "") {
 
             string linkUrl = url;
 
             #if UNITY_ANDROID
            
-            linkUrl = CustomUrlSchemeAndroid.GetLaunchedUrl(true);
-            CustomUrlSchemeAndroid.ClearSavedData();
+            //overriden linkUrl if deep link comes from external browser, due to limitations of Android plugins implementation
+            if (isExternalBrowser) {
+                linkUrl = CustomUrlSchemeAndroid.GetLaunchedUrl(true);
+                CustomUrlSchemeAndroid.ClearSavedData();
+            }
 
             #endif
 
