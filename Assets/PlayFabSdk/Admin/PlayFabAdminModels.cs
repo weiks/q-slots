@@ -1236,6 +1236,29 @@ namespace PlayFab.AdminModels
     }
 
     [Serializable]
+    public class DeleteMasterPlayerAccountRequest : PlayFabRequestCommon
+    {
+        /// <summary>
+        /// Unique PlayFab assigned ID of the user on whom the operation will be performed.
+        /// </summary>
+        public string PlayFabId;
+    }
+
+    [Serializable]
+    public class DeleteMasterPlayerAccountResult : PlayFabResultCommon
+    {
+        /// <summary>
+        /// A notification email with this job receipt Id will be sent to the title notification email address when deletion is
+        /// complete.
+        /// </summary>
+        public string JobReceiptId;
+        /// <summary>
+        /// List of titles from which the player's data will be deleted.
+        /// </summary>
+        public List<string> TitleIds;
+    }
+
+    [Serializable]
     public class DeletePlayerRequest : PlayFabRequestCommon
     {
         /// <summary>
@@ -1300,25 +1323,6 @@ namespace PlayFab.AdminModels
     {
     }
 
-    [Serializable]
-    public class DeleteUsersRequest : PlayFabRequestCommon
-    {
-        /// <summary>
-        /// An array of unique PlayFab assigned ID of the user on whom the operation will be performed.
-        /// </summary>
-        public List<string> PlayFabIds;
-        /// <summary>
-        /// Unique identifier for the title, found in the Settings > Game Properties section of the PlayFab developer site when a
-        /// title has been selected.
-        /// </summary>
-        public string TitleId;
-    }
-
-    [Serializable]
-    public class DeleteUsersResult : PlayFabResultCommon
-    {
-    }
-
     public enum EffectType
     {
         Allow,
@@ -1363,7 +1367,8 @@ namespace PlayFab.AdminModels
         master_player_account,
         title_player_account,
         character,
-        group
+        group,
+        service
     }
 
     [Serializable]
@@ -1417,6 +1422,25 @@ namespace PlayFab.AdminModels
         public int Revision;
     }
 
+    [Serializable]
+    public class ExportMasterPlayerDataRequest : PlayFabRequestCommon
+    {
+        /// <summary>
+        /// Unique PlayFab assigned ID of the user on whom the operation will be performed.
+        /// </summary>
+        public string PlayFabId;
+    }
+
+    [Serializable]
+    public class ExportMasterPlayerDataResult : PlayFabResultCommon
+    {
+        /// <summary>
+        /// An email with this job receipt Id containing the export download link will be sent to the title notification email
+        /// address when the export is complete.
+        /// </summary>
+        public string JobReceiptId;
+    }
+
     public enum GameBuildStatus
     {
         Available,
@@ -1450,6 +1474,7 @@ namespace PlayFab.AdminModels
     public enum GenericErrorCodes
     {
         Success,
+        MatchmakingHopperIdInvalid,
         UnkownError,
         InvalidParams,
         AccountNotFound,
@@ -1817,7 +1842,48 @@ namespace PlayFab.AdminModels
         InvalidTokenResultFromAad,
         NoValidCertificateForAad,
         InvalidCertificateForAad,
-        DuplicateDropTableId
+        DuplicateDropTableId,
+        GameServerOk,
+        GameServerAccepted,
+        GameServerNoContent,
+        GameServerBadRequest,
+        GameServerUnauthorized,
+        GameServerForbidden,
+        GameServerNotFound,
+        GameServerConflict,
+        GameServerInternalServerError,
+        GameServerServiceUnavailable,
+        MatchmakingInvalidEntityKeyList,
+        MatchmakingInvalidTicketCreatorProfile,
+        MatchmakingInvalidUserAttributes,
+        MatchmakingCreateRequestMissing,
+        MatchmakingCreateRequestCreatorMissing,
+        MatchmakingCreateRequestCreatorIdMissing,
+        MatchmakingCreateRequestUserListMissing,
+        MatchmakingCreateRequestGiveUpAfterInvalid,
+        MatchmakingTicketIdMissing,
+        MatchmakingMatchIdMissing,
+        MatchmakingMatchIdIdMissing,
+        MatchmakingHopperIdMissing,
+        MatchmakingTitleIdMissing,
+        MatchmakingTicketIdIdMissing,
+        MatchmakingUserIdMissing,
+        MatchmakingJoinRequestUserMissing,
+        MatchmakingHopperConfigNotFound,
+        MatchmakingMatchNotFound,
+        MatchmakingTicketNotFound,
+        MatchmakingCreateTicketServerIdentityInvalid,
+        MatchmakingCreateTicketClientIdentityInvalid,
+        MatchmakingGetTicketUserMismatch,
+        MatchmakingJoinTicketServerIdentityInvalid,
+        MatchmakingJoinTicketUserIdentityMismatch,
+        MatchmakingCancelTicketServerIdentityInvalid,
+        MatchmakingCancelTicketUserIdentityMismatch,
+        MatchmakingGetMatchIdentityMismatch,
+        MatchmakingUserIdentityMismatch,
+        MatchmakingAlreadyJoinedTicket,
+        MatchmakingTicketAlreadyCompleted,
+        MatchmakingHopperConfigInvalid
     }
 
     [Serializable]
@@ -2080,6 +2146,24 @@ namespace PlayFab.AdminModels
         /// array of game modes available for the specified build
         /// </summary>
         public List<GameModeInfo> GameModes;
+    }
+
+    [Serializable]
+    public class GetPlayedTitleListRequest : PlayFabRequestCommon
+    {
+        /// <summary>
+        /// Unique PlayFab assigned ID of the user on whom the operation will be performed.
+        /// </summary>
+        public string PlayFabId;
+    }
+
+    [Serializable]
+    public class GetPlayedTitleListResult : PlayFabResultCommon
+    {
+        /// <summary>
+        /// List of titles the player has played
+        /// </summary>
+        public List<string> TitleIds;
     }
 
     [Serializable]
@@ -3146,7 +3230,13 @@ namespace PlayFab.AdminModels
     [Serializable]
     public class NameIdentifier
     {
+        /// <summary>
+        /// Id Identifier, if present
+        /// </summary>
         public string Id;
+        /// <summary>
+        /// Name Identifier, if present
+        /// </summary>
         public string Name;
     }
 
@@ -3622,7 +3712,8 @@ namespace PlayFab.AdminModels
         /// </summary>
         public string PlayFabId;
         /// <summary>
-        /// Reason for refund. In the case of Facebook this must match one of their refund or dispute resolution enums (See:
+        /// The Reason parameter should correspond with the payment providers reason field, if they require one such as Facebook. In
+        /// the case of Facebook this must match one of their refund or dispute resolution enums (See:
         /// https://developers.facebook.com/docs/payments/implementation-guide/handling-disputes-refunds)
         /// </summary>
         public string Reason;
@@ -3763,7 +3854,8 @@ namespace PlayFab.AdminModels
         /// </summary>
         public string PlayFabId;
         /// <summary>
-        /// Reason for refund. In the case of Facebook this must match one of their refund or dispute resolution enums (See:
+        /// The Reason parameter should correspond with the payment providers reason field, if they require one such as Facebook. In
+        /// the case of Facebook this must match one of their refund or dispute resolution enums (See:
         /// https://developers.facebook.com/docs/payments/implementation-guide/handling-disputes-refunds)
         /// </summary>
         public string Reason;

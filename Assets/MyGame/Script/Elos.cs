@@ -88,9 +88,7 @@ namespace Elona.Slot {
 			} else {
                 if (Application.isEditor) {
                     slot.Play();
-                    int newBalance = slot.gameInfo.balance - slot.gameInfo.roundCost;
-                    PlayerPrefs.SetInt("quartersBalance", newBalance);
-                    slot.gameInfo.balance = newBalance;
+                    PlayerPrefs.SetInt("quartersBalance", slot.gameInfo.balance);
                 } else {
                     SpendQuarters(slot.gameInfo.roundCost, "Pay " + slot.gameInfo.roundCost + " Quarters for round cost.");
                 }
@@ -100,10 +98,10 @@ namespace Elona.Slot {
         private void SpendQuarters(int amount, string description) {
             TransferAPIRequest request = new TransferAPIRequest(amount, description, delegate (string transactionHash) {
                 Debug.Log("Quarters transferred: " + transactionHash);
+
                 slot.Play();
-                int newBalance = slot.gameInfo.balance - amount;
-                PlayerPrefs.SetInt("quartersBalance", newBalance);
-                slot.gameInfo.balance = newBalance;
+                PlayerPrefs.SetInt("quartersBalance", slot.gameInfo.balance);
+
             }, delegate (string error) {
                 Debug.LogError(error);
             });
@@ -120,13 +118,11 @@ namespace Elona.Slot {
                 int amount = info.payout * slot.gameInfo.bet;
                 Debug.Log("payout: " + amount);
 
-                if (!Application.isEditor) {
-                    Quarters.Instance.AwardQuarters(amount, delegate (string transactionHash) {
-                        Debug.Log("Quarters awarded: " + transactionHash);
-                    }, delegate (string error) {
-                        Debug.LogError(error);
-                    });
-                }
+                Quarters.Instance.AwardQuarters(amount, delegate (string transactionHash) {
+                    Debug.Log("Quarters awarded: " + transactionHash);
+                }, delegate (string error) {
+                    Debug.LogError(error);
+                });
             }
             
             if (info.hitSymbol.payType == Symbol.PayType.Custom) slot.AddEvent(new SlotEvent(bonusGame.Activate));

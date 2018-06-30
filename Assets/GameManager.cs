@@ -47,8 +47,11 @@ public class GameManager : MonoBehaviour {
         loginRequest.CustomId = SystemInfo.deviceUniqueIdentifier;
         loginRequest.CreateAccount = true;
 
+
         PlayFabClientAPI.LoginWithCustomID(loginRequest, delegate (LoginResult result) {
+
             Debug.Log("Playfab user logged in: " + result.PlayFabId);
+
         }, delegate (PlayFabError error) {
             Debug.LogError(error.ErrorMessage);
         });
@@ -99,34 +102,52 @@ public class GameManager : MonoBehaviour {
         SceneManager.LoadScene("Credits");
     }
 
-    public void GetAccountBalance() {
-        Quarters.Instance.GetAccountBalance(delegate (User.Account.Balance balance) {
-            quartersBalance = (int)balance.quarters;
-            Debug.Log("Quarters balance: " + (int)balance.quarters);
-            PlayerPrefs.SetInt("quartersBalance", quartersBalance);
-            Debug.Log("loading game..");
-            QuartersSetupCompleted = true;
-        }, delegate (string error) {
-
-        });
-    }
-
     public void Deauthorize () {
         Quarters.Instance.Deauthorize();
     }
 
     public void Play () {
-        //if (Quarters.Instance.IsAuthorized) {
-            //GetAccountBalance();
-        //} else {
+        if (Quarters.Instance.IsAuthorized) {
+            AuthorizationSuccess();
+        } else {
             Debug.Log("authorizing quarters..");
             Quarters.Instance.Authorize(OnAuthorizationSuccess, OnAuthorizationFailed);
-        //}
+        }
+
+    }
+
+    private void GetAccountBalance (){
+        Quarters.Instance.GetAccountBalance(delegate (User.Account.Balance balance) {
+            quartersBalance = (int)balance.quarters;
+            Debug.Log("Quarters balance: " + (int)balance.quarters);
+            PlayerPrefs.SetInt("quartersBalance", quartersBalance);
+
+            GetUserDetails();
+        }, delegate (string error) {
+
+        });
+    }
+
+    private void GetUserDetails () {
+        Quarters.Instance.GetUserDetails(delegate (User user) {
+            Debug.Log("User loaded");
+
+            Debug.Log("loading game..");
+            QuartersSetupCompleted = true;
+
+        }, delegate (string error) {
+            Debug.LogError("Cannot load the user details: " + error);
+
+        });
     }
 
     private void OnAuthorizationSuccess()
     {
         Debug.Log("OnAuthorizationSuccess");
+        AuthorizationSuccess();
+    }
+
+    private void AuthorizationSuccess() {
         GetAccountBalance();
     }
 

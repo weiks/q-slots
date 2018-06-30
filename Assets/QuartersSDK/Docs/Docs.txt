@@ -1,4 +1,4 @@
-Quarters Unity SDK - V0.9.0
+Quarters Unity SDK
 
 ###############################
 
@@ -115,6 +115,14 @@ General notes:
 - a post authorization calls can be called at any time. There is no need for calling API in any order. Example: After Authorizing session
 GetAccountBalance can be called right away without need of calling GetUserDetail -> GetAccounts -> GetAccountBalance.
 
+
+
+#####
+0.11.0
+- Added Playfab IAP module
+- Added In App Purchases support for iOS
+
+#####
 
 
 #####

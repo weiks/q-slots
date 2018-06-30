@@ -12,22 +12,22 @@ MonoBehaviour:
   m_Name: FabricSettings
   m_EditorClassIdentifier: 
   email: services@pocketfulofquarters.com
-  rawToken: '{"access_token":"eb96885c718e9e65ee8aaab3801609b6c4274d7d3565712daa61e801cc6792ac","refresh_token":"f8fb60b69e0b337bc32acf5add25406926170577069ada9b35a07576795c30fd","token_type":"bearer","expires_in":86400}'
+  rawToken: '{"access_token":"f713f8318b92ec3525971f703fa892a21cf0acb19e23e48ed90650b8a5d75a6b","refresh_token":"680d5e4dda2ac621dd47005e031b98f3c44ec1804609dc56e46c5db195508f3c","token_type":"bearer","expires_in":86400}'
   organization:
     Name: Pocketful of Quarters, Inc
     Id: 5b0813b72edc7f261d00046d
     ApiKey: e9e35c61303b0a358ca7a55199a57739a5fe22ed
     BuildSecret: f122dad39ef4923bcce585f67e832d80619402ea40f150cf048457967e072e91
-  iconUrl: 
-  dashboardUrl: 
-  initialization: 0
-  flowSequence: 0
+  iconUrl: https://s3.amazonaws.com/assets.crashlytics.com/production/project/8359678/project_icon/4211667/icon.png
+  dashboardUrl: https://www.fabric.io/pocketful-of-quarters-inc/ios/apps/com.ct.cc1
+  initialization: 1
+  flowSequence: 300
   conflict: 
   kit: 
   installedKits:
   - Name: Crashlytics
-    InstallationStatus: 1
-    Installed: 0
+    InstallationStatus: 2
+    Installed: 1
     Enabled: 1
     Meta:
     - Key: ConfiguredTimestamp

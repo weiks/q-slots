@@ -369,6 +369,13 @@ namespace PlayFab.PlayStreamModels
         public string PublisherId;
         public string TitleId;
     }
+    public class PlayerDataExportedEventData : PlayStreamEventBase
+    {
+        public string ExportDownloadUrl;
+        public string JobReceiptId;
+        public DateTime RequestTime;
+        public string TitleId;
+    }
     public class PlayerDisplayNameChangedEventData : PlayStreamEventBase
     {
         public string DisplayName;
@@ -1901,7 +1908,13 @@ namespace PlayFab.PlayStreamModels
     [Serializable]
     public class NameIdentifier
     {
+        /// <summary>
+        /// Id Identifier, if present
+        /// </summary>
         public string Id;
+        /// <summary>
+        /// Name Identifier, if present
+        /// </summary>
         public string Name;
     }
 

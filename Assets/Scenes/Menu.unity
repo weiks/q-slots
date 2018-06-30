@@ -2014,12 +2014,17 @@ Prefab:
     - target: {fileID: 114318907845399088, guid: 6fda49cb785be4592a669bda56f10447,
         type: 2}
       propertyPath: APP_ID
-      value: k6d7DBEfTRW6Q6Tj1VC8
+      value: njnJ03EuOou6O5Ac6rwa
       objectReference: {fileID: 0}
     - target: {fileID: 114318907845399088, guid: 6fda49cb785be4592a669bda56f10447,
         type: 2}
       propertyPath: APP_KEY
-      value: 0hi2dh8dl28qu23pbpu6g5h4c8uuwtjn6
+      value: k9l6awjoyjb3ygy37jqedaesysomezc56
+      objectReference: {fileID: 0}
+    - target: {fileID: 114318907845399088, guid: 6fda49cb785be4592a669bda56f10447,
+        type: 2}
+      propertyPath: environment
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 6fda49cb785be4592a669bda56f10447, type: 2}

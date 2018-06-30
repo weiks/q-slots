@@ -7,6 +7,7 @@ using QuartersSDK;
 #if QUARTERS_MODULE_PLAYFAB
 using PlayFab;
 using PlayFab.ClientModels;
+using UnityEngine.Purchasing;
 #endif
 
 
@@ -14,6 +15,7 @@ public class ExampleUI : MonoBehaviour {
 
     public List<CanvasGroup> authorizedOnlyUI = new List<CanvasGroup>();
     public List<CanvasGroup> unAuthorizedOnlyUI = new List<CanvasGroup>();
+    public List<CanvasGroup> playfabModuleOnlyUI = new List<CanvasGroup>();
     public Text debugConsole;
 
     public InputField tokensInput;
@@ -149,7 +151,8 @@ public class ExampleUI : MonoBehaviour {
 
 
 
-    public void ButtonGetAccountRewardTapped() {
+
+    private void LoginWithCustomId(System.Action OnComplete) {
 
         #if QUARTERS_MODULE_PLAYFAB
 
@@ -163,6 +166,29 @@ public class ExampleUI : MonoBehaviour {
 
             Debug.Log("Playfab user logged in: " + result.PlayFabId);
 
+            OnComplete();
+
+        }, delegate (PlayFabError error){
+            Debug.LogError(error.ErrorMessage);
+        });
+
+
+        #else
+        Debug.LogError("Quarters module: Playfab, is not enabled. Add QUARTERS_MODULE_PLAYFAB scripting define in Player settings");
+        #endif
+
+
+    }
+
+
+
+    public void ButtonGetAccountRewardTapped() {
+
+        #if QUARTERS_MODULE_PLAYFAB
+
+        //user must be logged with playfab to call any cloud script code
+        LoginWithCustomId(delegate {
+            
             //Request 2 quarters from Playfab Cloud build
             Quarters.Instance.AwardQuarters(2, delegate(string transactionHash) {
 
@@ -176,13 +202,11 @@ public class ExampleUI : MonoBehaviour {
                 RefreshUI();
 
             });
-
-        }, delegate (PlayFabError error){
-            Debug.LogError(error.ErrorMessage);
         });
 
+           
 
-
+       
         #else
         Debug.LogError("Quarters module: Playfab, is not enabled. Add QUARTERS_MODULE_PLAYFAB scripting define in Player settings");
         #endif
@@ -193,7 +217,92 @@ public class ExampleUI : MonoBehaviour {
 
 
 
+    public void ButtonInitializeTapped() {
 
+        #if QUARTERS_MODULE_PLAYFAB
+
+        //user must be logged with playfab to call any cloud script code
+        LoginWithCustomId(delegate {
+
+            List<string> testProducts = new List<string>();
+            testProducts.Add(4 + Constants.QUARTERS_PRODUCT_KEY);
+            testProducts.Add(8 + Constants.QUARTERS_PRODUCT_KEY);
+
+            QuartersIAP.Instance.Initialize(testProducts, delegate(Product[] products) {
+            
+
+
+            }, delegate(InitializationFailureReason reason) {
+            
+                Debug.LogError(reason.ToString());
+            });
+
+        });
+
+        #else
+            Debug.LogError("Quarters module: Playfab, is not enabled. Add QUARTERS_MODULE_PLAYFAB scripting define in Player settings");
+        #endif
+
+    }
+     
+
+
+
+
+    public void ButtonBuyIAPTapped() {
+
+        #if QUARTERS_MODULE_PLAYFAB
+
+        if (Application.isEditor) Debug.LogError("Buying IAP is not supported in Unity Editor");
+
+        #if !UNITY_IOS
+            Debug.LogError("Buying IAP only supported on iOS at this moment");
+            return;
+        #endif
+
+
+        if (QuartersIAP.Instance.products.Count == 0) {
+            Debug.LogError("No products loaded. Call QuartersIAP.Initialize first!");
+            return;
+        }
+
+
+        Quarters.Instance.GetUserDetails(delegate(User user) {
+            Debug.Log("User loaded");
+
+            debugConsole.text += "\n";
+            debugConsole.text += "\nUser loaded: ";
+            debugConsole.text += JsonConvert.SerializeObject(user, Formatting.Indented);
+
+            //test purchase of first initialized product
+            QuartersIAP.Instance.BuyProduct(QuartersIAP.Instance.products[0], (Product product, string txId) => {
+
+                Debug.Log("Purchase complete");
+                debugConsole.text += "\n";
+                debugConsole.text += "\nTransfer successful, transactionHash: " + txId;
+                Debug.Log("Console: " + debugConsole.text);
+
+
+            },(string error) => {
+                Debug.LogError("Purchase error: " + error);
+
+                debugConsole.text += "\n";
+                debugConsole.text += "\nOnTransactionFailed: " + error;
+                Debug.Log("Console: " + debugConsole.text);
+            });
+
+
+        }, delegate (string error) {
+            Debug.LogError("Cannot load the user details: " + error);
+            debugConsole.text += "\n";
+            debugConsole.text += "\nCannot load the user details:: " + error;
+        });
+
+        #else
+            Debug.LogError("Quarters module: Playfab, is not enabled. Add QUARTERS_MODULE_PLAYFAB scripting define in Player settings");
+        #endif
+
+    }
 
 
 
