@@ -94632,6 +94632,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slot: {fileID: 626085240}
+  shop: {fileID: 1340922586}
   assets:
     tweens:
       tsBonus: {fileID: 1784359685}
@@ -111155,12 +111156,6 @@ MonoBehaviour:
   textHint: {fileID: 969699578}
   textCost: {fileID: 1951311655}
   icon: {fileID: 1664925155}
-  data:
-    id: 
-    name: 
-    hint: 
-    localizedCost: 
-    sprite: {fileID: 0}
   button: {fileID: 2125718654}
   bg: {fileID: 2125718655}
   colorValid: {r: 0.9852941, g: 0.8731744, b: 0.24632353, a: 1}

@@ -11,18 +11,6 @@ namespace Elona.Slot {
 	[ExecuteInEditMode]
 	public class ElosShop : MonoBehaviour {
 		[Serializable]
-		public class ShopItemData {
-            internal string id;
-            internal string name;
-            internal string hint;
-            internal string localizedCost;
-            internal decimal cost;
-			//public Sprite sprite;
-            internal int quantity;
-			internal ElosShopItem actor;
-		}
-
-		[Serializable]
 		public class JureTalk {
 			public string welcome_EN;
 			public string welcome_JP;
@@ -38,46 +26,17 @@ namespace Elona.Slot {
 
 		public ElosShopItem itemMold;
 		public int minCheatBalance;
-		//public JureTalk talks;
-        //public List<String> productsToLoad;
 
-        private List<ShopItemData> items = new List<ShopItemData>();
 		private int balance { get { return elos.slot.gameInfo.balance; } }
 		private Elos.Assets assets { get { return elos.assets; } }
 
-		private void Awake() {
-			//if (!Application.isPlaying) {
-			//	items.Sort((x, y) => { return y.cost - x.cost; });
-			//	return;
-			//}
-
-            List<String> productsToLoad = new List<String>();
-            productsToLoad.Add("4Quarters");
-            productsToLoad.Add("8Quarters");
-
-            QuartersIAP.Instance.Initialize(productsToLoad, delegate (Product[] products) {
-
-                foreach (Product product in products)
-                {
-                    ShopItemData d = new ShopItemData();
-                    d.id = product.definition.storeSpecificId;
-                    d.name = product.metadata.localizedTitle;
-                    d.hint = product.metadata.localizedDescription;
-                    d.cost = product.metadata.localizedPrice;
-                    d.localizedCost = product.metadata.localizedPriceString;
-                    string quantityAsString = d.id.Replace("Quarters", string.Empty);
-                    int quantity;
-                    int.TryParse(quantityAsString, out quantity);
-                    d.quantity = quantity;
-                    items.Add(d);
-                }
-
-                Refresh();
-
-            }, delegate (InitializationFailureReason reason) {
-                Debug.LogError(reason.ToString());
-            });
-		}
+        private void Awake()
+        {
+            //if (!Application.isPlaying) {
+            //	items.Sort((x, y) => { return y.cost - x.cost; });
+            //	return;
+            //}
+        }
 
 		public void Activate() {
 			gameObject.SetActive(true);
@@ -106,7 +65,6 @@ namespace Elona.Slot {
 		public void _Deactivate() { gameObject.SetActive(false); }
 
 		public void Buy(ShopItemData item) {
-
             Debug.Log("Selected... " + item.id);
             foreach (Product p in QuartersIAP.Instance.products) {
                 if (p.definition.storeSpecificId == item.id) {
@@ -127,7 +85,7 @@ namespace Elona.Slot {
 
 		}
 
-		public void Refresh() {
+        public void Refresh(List<ShopItemData> items) {
             //if (itemMold.gameObject.activeSelf) {
                 foreach (ShopItemData item in items) {
                     Util.InstantiateAt<ElosShopItem>(itemMold, layoutItems.transform).ApplyData(item, this);

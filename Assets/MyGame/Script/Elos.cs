@@ -1,18 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
 using CSFramework;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Purchasing;
 using QuartersSDK;
 using PlayFab;
 using PlayFab.ClientModels;
 
 namespace Elona.Slot {
+    public class ShopItemData
+    {
+        internal string id;
+        internal string name;
+        internal string hint;
+        internal string localizedCost;
+        internal decimal cost;
+        //public Sprite sprite;
+        internal int quantity;
+        internal ElosShopItem actor;
+    }
+
 	/// <summary>
 	/// A main class for Elona Slot(Demo) derived from BaseSlotGame.
 	/// For the most part, it's overriding the base methods to add visual/audio effects.
 	/// </summary>
 	public class Elos : MonoBehaviour {
 		public CustomSlot slot;
+        public ElosShop shop;
 
         [Serializable]
 		public class Assets {
@@ -60,12 +75,45 @@ namespace Elona.Slot {
 		}
 
         public void Initialize() {
+            List<String> productsToLoad = new List<String>();
+            productsToLoad.Add("4Quarters");
+            productsToLoad.Add("8Quarters");
+
+            LoadProducts(productsToLoad);
+
 			mold.gameObject.SetActive(false);
 			if (!slot.debug.skipIntro) {
 				cg.alpha = 0;
 				cg.DOFade(1f, transitionTime*0.5f).SetDelay(transitionTime*0.5f);
 			}
 		}
+
+        private void LoadProducts(List<String> productsToLoad) {
+            QuartersIAP.Instance.Initialize(productsToLoad, delegate (Product[] products) {
+                List<ShopItemData> items = new List<ShopItemData>();
+
+                foreach (Product product in products)
+                {
+                    ShopItemData d = new ShopItemData();
+                    d.id = product.definition.storeSpecificId;
+                    d.name = product.metadata.localizedTitle;
+                    d.hint = product.metadata.localizedDescription;
+                    d.cost = product.metadata.localizedPrice;
+                    d.localizedCost = product.metadata.localizedPriceString;
+                    string quantityAsString = d.id.Replace("Quarters", string.Empty);
+                    int quantity;
+                    int.TryParse(quantityAsString, out quantity);
+                    d.quantity = quantity;
+                    items.Add(d);
+                }
+
+                shop.Refresh(items);
+
+            }, delegate (InitializationFailureReason reason) {
+                Debug.LogError(reason.ToString());
+            });
+        }
+
 
 		private void Update() {
 			if (slot.debug.useDebugKeys) {

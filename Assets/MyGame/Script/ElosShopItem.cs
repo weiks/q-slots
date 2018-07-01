@@ -8,13 +8,13 @@ namespace Elona.Slot {
 		public Text textHint;
 		public Text textCost;
 		public Image icon;
-        public ElosShop.ShopItemData data;
+        public ShopItemData data;
 		public Button button;
 		public Image bg;
 		public Color colorValid;
 		public Color colorInvalid;
 
-		public void ApplyData(ElosShop.ShopItemData data, ElosShop shop) {
+		public void ApplyData(ShopItemData data, ElosShop shop) {
 			this.data = data;
 			data.actor = this;
 			button.onClick.AddListener(() => { shop.Buy(data); });
