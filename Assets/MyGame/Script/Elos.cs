@@ -107,7 +107,8 @@ namespace Elona.Slot {
                     items.Add(d);
                 }
 
-                shop.Refresh(items);
+                shop.items = items;
+                shop.Refresh();
 
             }, delegate (InitializationFailureReason reason) {
                 Debug.LogError(reason.ToString());

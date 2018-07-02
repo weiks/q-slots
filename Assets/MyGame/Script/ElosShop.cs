@@ -10,20 +10,13 @@ using UnityEngine.UI;
 namespace Elona.Slot {
 	[ExecuteInEditMode]
 	public class ElosShop : MonoBehaviour {
-		[Serializable]
-		public class JureTalk {
-			public string welcome_EN;
-			public string welcome_JP;
-			public string bought_EN;
-			public string bought_JP;
-		}
-
 		public Elos elos;
 		public GridLayoutGroup layoutItems;
 		public Transform window;
 		public Image background;
 		public Transform mascot;
 
+        public List<ShopItemData> items;
 		public ElosShopItem itemMold;
 		public int minCheatBalance;
 
@@ -32,10 +25,10 @@ namespace Elona.Slot {
 
         private void Awake()
         {
-            //if (!Application.isPlaying) {
-            //	items.Sort((x, y) => { return y.cost - x.cost; });
-            //	return;
-            //}
+            if (!Application.isPlaying) {
+            	items.Sort((x, y) => { return (int)y.cost - (int)x.cost; });
+            	return;
+            }
         }
 
 		public void Activate() {
@@ -50,10 +43,7 @@ namespace Elona.Slot {
 				Camera.main.DOShakePosition(1.2f, 6, 12);
 			});
 			mascot.DOLocalMoveY(0, 2f).SetEase(Ease.OutBounce);
-			//Talk(talks.welcome_EN, talks.welcome_JP, 1f);
 		}
-
-		//public void Talk(string en, string jp, float delay = 0.1f) { Util.Tween(delay, null, () => { Util.InstantiateAt<ElosEffectBalloon>(elos.assets.effectBalloon, mascot).SetPos(0, 100).Play(Lang.Get(en, jp), 4f); }); }
 
 		public void Deactivate() {
 			if (DOTween.IsTweening(background)) return;
@@ -85,7 +75,7 @@ namespace Elona.Slot {
 
 		}
 
-        public void Refresh(List<ShopItemData> items) {
+        public void Refresh() {
             //if (itemMold.gameObject.activeSelf) {
                 foreach (ShopItemData item in items) {
                     Util.InstantiateAt<ElosShopItem>(itemMold, layoutItems.transform).ApplyData(item, this);
