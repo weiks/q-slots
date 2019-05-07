@@ -147,7 +147,7 @@ namespace QuartersSDK {
                 controller.InitiatePurchase(product);
 
             #else
-                Debug.LogError("Purchasing quarters through IAP is not supported on this platform
+                Debug.LogError("Purchasing quarters through IAP is not supported on this platform");
             #endif
         }
 
